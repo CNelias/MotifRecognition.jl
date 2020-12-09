@@ -1,5 +1,5 @@
 module MotifRecogntion
 
-greet() = print("Hello World!")
+include("CollisionMatrix.jl")
 
 end # module
