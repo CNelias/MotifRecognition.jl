@@ -1,3 +1,6 @@
+using Combinatorics
+using DataStructures
+
 """
     S_matrix(ts, window)
 
@@ -32,6 +35,16 @@ function apply_mask(mask, S)
         masked_S[:, index] = S[:, value]
     end
     return masked_S
+end
+
+
+function update_collision_matrix!(collision_matrix, masked_S)
+    count = counter([masked_S[index,:] for index in 1:size(masked_S)[1]])
+    for motif in keys(count)
+        if count[motif] > 1
+            pass #do stuff
+        end
+    end
 end
 
 test = ["a","b","c","d","a","b","c","a","b","c","a","b","c","a","b","c"]
