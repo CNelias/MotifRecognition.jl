@@ -1,5 +1,7 @@
 using Combinatorics
+using Distributions
 using DataStructures
+using Random
 
 """
     S_matrix(ts, window)
@@ -59,15 +61,35 @@ end
 """
 Returns dictionnary containing the probability of each symbol found in ts.
 """
-function symbol_probabilities(ts):
-    proba = count(ts)
-    proba = proba./length(proba)
+function symbol_probabilities(ts)
+    proba = values(counter(ts))
+    proba = proba./sum(proba)
 end
+
+"""
+    match_pobability(l, d, p, iter = 10000)
+
+Estimates the probability of two random generated words of length 'l' from alphabet having probabilities 'p'
+to match up to 'd' error. Done via monte carlo with 'iter' iterations.
+Example:
+Alphabet = {a,b,c} with probabilities [0.25, 0.25. 0.5], l = 8 and d = 3.
+We sample from this distribution 'iter' words of length l = 8 and look how many of them match up to d = 3 errors.
+"""
+function match_pobability(l, d, p, iter = 10000)
+    p_symbol_match = sum(p.*p)
+    p_symbol_mismatch = 1 - p_symbol_match
+    match_proba = 0
+    for i in 1:d
+        match_proba += binomial(l, i)*p_symol_match^(w-i)*p_symbol_mismatch^i*(1-i/l)^(w-d)
+    end
+end
+
 
 """
     significance_threshold(l, a, w, d, t)
 
 Computes the expectation value of collision matrix entries for random words.
+This is a conservative estimate that assumes all symbols are equiprobable
 inputs (Int):
 l : total length (size(S)[1])
 a : alphabet size
@@ -78,6 +100,7 @@ returns (Int):
 E : expecation value of collision entires.
 """
 function significance_threshold(l, a, w, d, t)
+    k = binomial(l, 2)
 
 end
 
