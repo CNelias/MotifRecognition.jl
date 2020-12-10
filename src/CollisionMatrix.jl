@@ -37,14 +37,48 @@ function apply_mask(mask, S)
     return masked_S
 end
 
+"""
+    update_collision_matrix!(collision_matrix, masked_S)
 
+Updates the collision matrix by adding 1 in the row where repetitions of a motif are found.
+The row are the index of the repetitions, the column represent the first found motif of this type.
+"""
 function update_collision_matrix!(collision_matrix, masked_S)
-    count = counter([masked_S[index,:] for index in 1:size(masked_S)[1]])
+    masked_S_list = [masked_S[index,:] for index in 1:size(masked_S)[1]]
+    count = counter(masked_S_list)
     for motif in keys(count)
         if count[motif] > 1
-            pass #do stuff
+            positions = findall(x -> x == motif, masked_S_list)
+            for p in positions
+                collision_matrix[p, positions[1]] += 1
+            end
         end
     end
+end
+
+"""
+Returns dictionnary containing the probability of each symbol found in ts.
+"""
+function symbol_probabilities(ts):
+    proba = count(ts)
+    proba = proba./length(proba)
+end
+
+"""
+    significance_threshold(l, a, w, d, t)
+
+Computes the expectation value of collision matrix entries for random words.
+inputs (Int):
+l : total length (size(S)[1])
+a : alphabet size
+w : motif size (window size)
+d : # of errors between motifs
+t : length of projections (after applying mask.)
+returns (Int):
+E : expecation value of collision entires.
+"""
+function significance_threshold(l, a, w, d, t)
+
 end
 
 test = ["a","b","c","d","a","b","c","a","b","c","a","b","c","a","b","c"]
