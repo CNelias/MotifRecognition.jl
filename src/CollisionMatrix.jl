@@ -40,12 +40,12 @@ function apply_mask(mask, S)
 end
 
 """
-    update_collision_matrix!(collision_matrix, masked_S)
+    update_c_matrix!(collision_matrix, masked_S)
 
 Updates the collision matrix by adding 1 in the row where repetitions of a motif are found.
 The row are the index of the repetitions, the column represent the first found motif of this type.
 """
-function update_collision_matrix!(collision_matrix, masked_S)
+function update_c_matrix!(collision_matrix, masked_S)
     masked_S_list = [masked_S[index,:] for index in 1:size(masked_S)[1]]
     count = counter(masked_S_list)
     for motif in keys(count)
@@ -67,41 +67,62 @@ function symbol_probabilities(ts)
 end
 
 """
-    match_pobability(l, d, p, iter = 10000)
+    match_pobability(l, d, p, iter)
 
-Estimates the probability of two random generated words of length 'l' from alphabet having probabilities 'p'
-to match up to 'd' error. Done via monte carlo with 'iter' iterations.
+Returns the probability of two random generated words of length 'w' from alphabet having probabilities 'p'
+to match up to 'd' error. 't' is the size of the masked words.
 Example:
 Alphabet = {a,b,c} with probabilities [0.25, 0.25. 0.5], l = 8 and d = 3.
 We sample from this distribution 'iter' words of length l = 8 and look how many of them match up to d = 3 errors.
 """
-function match_pobability(l, d, p, iter = 10000)
+function match_pobability(w, d, p, t)
     p_symbol_match = sum(p.*p)
     p_symbol_mismatch = 1 - p_symbol_match
     match_proba = 0
     for i in 1:d
-        match_proba += binomial(l, i)*p_symol_match^(w-i)*p_symbol_mismatch^i*(1-i/l)^(w-d)
+        match_proba += binomial(w, i)*p_symol_match^(w-i)*p_symbol_mismatch^i*(1-i/w)^t
     end
 end
 
 
 """
-    significance_threshold(l, a, w, d, t)
+    significance_threshold(l, p, w, d, t)
 
 Computes the expectation value of collision matrix entries for random words.
 This is a conservative estimate that assumes all symbols are equiprobable
 inputs (Int):
 l : total length (size(S)[1])
-a : alphabet size
+p : probabilities of different symbols in alphabet.
 w : motif size (window size)
-d : # of errors between motifs
+d : # of allowed errors between motifs
 t : length of projections (after applying mask.)
 returns (Int):
 E : expecation value of collision entires.
 """
-function significance_threshold(l, a, w, d, t)
+function significance_threshold(l, p, w, d, t)
     k = binomial(l, 2)
+    average_match = k*match_probability(w, d, p, t)
+    return floor(average_match)
+end
 
+
+
+"""
+    collision_matrix(ts, w, d)
+
+Constructs and returns the collision matrix of time-series 'ts'.
+inputs (Int):
+ts : input time-series
+w : motif size (window size)
+d : # of allowed errors between motifs
+t : length of projections after applying mask. default to w - d.
+returns (Int):
+C : collision matrix
+"""
+function collision_matrix(ts, w, d, t = w - d)
+    C = zeros(size(ts)[1] - w, size(ts)[1] - w)
+
+    return C
 end
 
 test = ["a","b","c","d","a","b","c","a","b","c","a","b","c","a","b","c"]
