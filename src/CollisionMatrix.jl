@@ -2,6 +2,8 @@ using Combinatorics
 using DataStructures
 using Random
 
+include("Thresholds.jl")
+
 """
     S_matrix(ts, window)
 
@@ -19,25 +21,30 @@ end
 """
 Returns all possible masks of length d among the possible w positions.
 positive masks: the indexes represent the columns that are KEPT.
-w : motif length
-t : length of masked motifs
+    w : motif length
+    t : length of masked motifs
 """
 function get_masks(w, t)
-    if t >= w
+    if t > w
         error("mask length must be smaller than w")
     end
     return collect(combinations(collect(1:w), t))
 end
 
 """
-Returns a masked version of the S matrix.
+    exclusion_mask!(c_matrix, exclusion_zone)
+
+Applies exclusion zone to collision matrix (in place).
 """
-function apply_mask(S, mask)
-    masked_S = Array{typeof(S[1, 1]),2}(undef, size(S)[1], length(mask))
-    for (index, value) in enumerate(mask)
-        masked_S[:, index] = S[:, value]
+function exclusion_mask!(c_matrix, exclusion_zone)
+    for column in 1:size(c_matrix)[2] - exclusion_zone
+        for row in 1:column + exclusion_zone
+            c_matrix[row, column] = -Inf
+        end
     end
-    return masked_S
+    for i in 0:exclusion_zone
+        c_matrix[:, end - i] .= -Inf
+    end
 end
 
 """
@@ -45,20 +52,22 @@ end
 
 Updates the collision matrix by adding 1 in the row where repetitions of a motif are found.
 The row are the index of the repetitions, the column represent the first found motif of this type.
+An exclusion zone is applied to tackle trivial neighbours motifs.
 """
 function update_c_matrix!(collision_matrix, masked_S)
     masked_S_list = [masked_S[index,:] for index in 1:size(masked_S)[1]]
     count = counter(masked_S_list)
     for motif in keys(count)
         if count[motif] > 1
-            positions = findall(x -> x == motif, masked_S_list)
-            for p in positions
-                collision_matrix[p, positions[1]] += 1
+            p = findall(x -> x == motif, masked_S_list)
+            for index in 1:length(p)-1
+                if abs(p[index+1] - p[index]) >= length(masked_S[1,:])
+                    collision_matrix[p[index+1], p[1]] += 1
+                end
             end
         end
     end
 end
-
 
 
 """
@@ -66,23 +75,24 @@ end
 
 Constructs and returns the collision matrix of time-series 'ts'.
 inputs (Int):
-ts : input time-series
-w : motif size (window size)
-d : # of allowed errors between motifs
-t : length of projections after applying mask. Defaults to w - d.
+    ts : input time-series
+    w : motif size (window size)
+    d : # of allowed errors between motifs
+    e : exclusion zone to get rid of trivial matches.
+    t : length of projections after applying mask. Defaults to w - d.
+    iters : the number of cycles used to construct the collision matrix.
 returns (Int):
-C : collision matrix
+    C : collision matrix
 """
-function collision_matrix(ts, w, d, t = w - d)
-    C = zeros(length(ts) - w, length(ts) - w)
+function collision_matrix(ts, w, d, t = w - d, e = div(w,2); iters = 1000)
     S = S_matrix(ts, w)
-    masked_S = Array{typeof(S[1, 1]),2}(undef, size(S)[1], t)
-    for mask in get_masks(w, t)
-        masked_S = apply_mask(S, mask)
-        update_c_matrix!(C, masked_S)
+    # pre-alocate memory
+    C = zeros(length(ts) - w, length(ts) - w)
+    exclusion_mask!(C, e) #apply exclusion zone to collision matrix
+    masks = get_masks(w, t)
+    for i in 1:iters
+        mask = rand(masks)
+        update_c_matrix!(C, S[:, mask]) #selecting masked version of S
     end
     return C
 end
-
-test = ["a","b","c","d","a","b","c","a","b","c","a","b","c","a","b","c"]
-c = collision_matrix(test, 4, 2)
