@@ -50,8 +50,8 @@ returns :
 function detect_motifs(ts, w, d, t = w - d; iters = 1000, tolerance = 0.95)
     CM = collision_matrix(ts, w, d, t; iters = iters)
     min_occurences = least_occurence_threshold(ts, w, d)
-    println("Expected similar matches by chance : $min_occurences")
-    expected_matches = iters * match_probability(w, d, t) * tolerance
+    # println("Expected similar matches by chance : $min_occurences")
+    expected_matches = iters * masked_match(w, d, t) * tolerance
     occurences = sum(CM .> expected_matches, dims = 1) .+ 1
     idx = sort_decreasing(occurences[1,:]) #the indices needed to sort the final dict and list
     sorted_indices = [idx[i] for i in 1:length(idx)-1 if abs(idx[i+1] - idx[i]) > w] # removing trivial matches

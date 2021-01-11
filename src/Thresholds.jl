@@ -27,19 +27,17 @@ function symbol_probabilities(ts)
 end
 
 """
-    match_probability(p, w, d, t)
+    masked_match(w, d, t)
 
-Returns the probability of two random generated words of length 'w' from alphabet having probabilities 'p'
-to match up to 'd' error. 't' is the size of the masked words.
+Returns the probability of two random masked generated motifs of length 't'
+to match despite 'd' error. 'w' is the size of the full motifs.
 !! this is a probability PER ITERATION !!
 inputs (Int):
     w : motif size (window size).
     d : # of allowed errors between motifs.
     t : length of projections after applying mask. Defaults to w - d.
-returns (Int):
-    thresholds : matrices holding the threshold values for each column of collision matrix.
 """
-function match_probability(w, d, t)
+function masked_match(w, d, t)
     match_proba = binomial(w - t, d)/binomial(w, d)
     return match_proba
 end
@@ -52,8 +50,8 @@ input:
     ts : input time-series
     w : motif size (window size).
     d : # of allowed errors between motifs.
-    confidence (optional) : the level of desired confidence. If  set to 0.05, the expected value number of motifs chains matching
-        'match_number' times will be 0.05.
+    confidence (optional) : the level of desired confidence. If  set to 0.5, the expected number of motifs chains matching
+        'match_number' times by chance will be 0.5. (defaults to 0.5)
 Returns:
     match_number : match number by chance allowed by 'confidence'.
 """
