@@ -1,5 +1,4 @@
-module MotifRecogntion
-
+# module MotifRecogntion
 using Plots
 
 
@@ -126,7 +125,7 @@ function plot_motif(motif, ts)
 end
 
 function plot_motif(motif)
-    a = plot(motif.shape, lw = 3, yticks = -10:5)
+    a = plot(motif.shape, lw = 3, yticks = minimum(motif.shape):maximum(motif.shape))
     for m in motif.instances[1:end-1]
         plot!(a, m, lw = 3)
     end
@@ -135,20 +134,24 @@ end
 
 using MusicManipulations
 using SpectralEnvelope
+using DelimitedFiles
 
-path = "C:\\Users\\cnelias\\Desktop\\PHD\\PSD project\\data\\raw\\jazz\\JohnColtrane_Countdown_FINAL"
-file = readMIDIFile(path)
-notes = getnotes(file, 1)
-pitch = mod.(pitches(notes), 12)
-intervals = pitch[2:end] .- pitch[1:end-1]
-m = detect_motifs(intervals, 6, 1)
-plot_motif(m[1])
+const path = "C:\\Users\\cnelias\\Desktop\\PHD\\PSD project\\data\\raw\\jazz\\MichaelBrecker_Confirmation_FINAL"
+const file = readMIDIFile(path)
+const notes = getnotes(file, 1)
+const pitch = mod.(pitches(notes), 12)
+const intervals = pitch[2:end] .- pitch[1:end-1]
+@time detect_motifs(intervals, 7, 1)
+@profiler detect_motifs(intervals, 7, 1)
+# m = detect_motifs(intervals, 7, 1)
+# print(m[2])
+# plot_motif(m[1])
 
 # f, se = spectral_envelope(intervals)
 # display(plot(f, se))
-# get_mappings(intervals, 0.18)
+# get_mappings(intervals, 0.05)
 
 # m = find_motifs(intervals, m[1].shape[1:end-1], 1)
 # plot_motif(m)
 
-end
+# end

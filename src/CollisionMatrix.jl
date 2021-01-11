@@ -48,6 +48,20 @@ function exclusion_mask!(c_matrix, exclusion_zone)
 end
 
 """
+A version of `findall` adapted for loops to go faster.
+"""
+function findall_fast(f, a::Array{T, N}, stocker) where {T, N}
+    j = 1
+    @inbounds for i in eachindex(a)
+        @inbounds if f(a[i])
+        @inbounds    stocker[j] = i
+            j += 1
+        end
+    end
+    return stocker[1:j-1]
+end
+
+"""
     update_c_matrix!(collision_matrix, masked_S)
 
 Updates the collision matrix by adding 1 in the row where repetitions of a motif are found.
@@ -56,18 +70,22 @@ An exclusion zone is applied to tackle trivial neighbours motifs.
 """
 function update_c_matrix!(collision_matrix, masked_S)
     masked_S_list = [masked_S[index,:] for index in 1:size(masked_S)[1]]
-    count = counter(masked_S_list)
-    for motif in keys(count)
-        if count[motif] > 1
-            p = findall(x -> x == motif, masked_S_list)
+    total_count = counter(masked_S_list)
+    # sub_count = Dict(key => total_count[key] for key in keys(total_count) if total_count[key] > 1)
+    stocker = Vector{Int}(undef, length(masked_S_list))
+    for motif in keys(total_count)
+        if total_count[motif] > 1
+            p = findall_fast(x -> x == motif, masked_S_list, stocker)
+            # stocker .= 0
             for index in 1:length(p)-1
-                if abs(p[index+1] - p[index]) >= length(masked_S[1,:])
-                    collision_matrix[p[index+1], p[1]] += 1
+                @inbounds if abs(p[index+1] - p[index]) >= length(masked_S[1,:])
+                @inbounds collision_matrix[p[index+1], p[1]] += 1
                 end
             end
         end
     end
 end
+
 
 
 """
