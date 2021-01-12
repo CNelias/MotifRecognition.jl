@@ -1,5 +1,6 @@
 using Test
 using DelimitedFiles
+using MotifRecognition
 
 cd(@__DIR__)
 data = readdlm("confirmation")
