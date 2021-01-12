@@ -125,9 +125,10 @@ function plot_motif(motif, ts)
 end
 
 function plot_motif(motif)
-    a = plot(motif.shape, lw = 3, yticks = minimum(motif.shape):maximum(motif.shape))
-    for m in motif.instances[1:end-1]
-        plot!(a, m, lw = 3)
+    a = plot(motif.shape, lw = 3, yticks = minimum(motif.shape):maximum(motif.shape), label = "occurence #1")
+    for (idx, m) in enumerate(motif.instances[1:end-1])
+        idx += 1
+        plot!(a, m, lw = 3, label = "Occurence #$idx")
     end
     display(a)
 end
@@ -136,16 +137,13 @@ using MusicManipulations
 using SpectralEnvelope
 using DelimitedFiles
 
-const path = "C:\\Users\\cnelias\\Desktop\\PHD\\PSD project\\data\\raw\\jazz\\MichaelBrecker_Confirmation_FINAL"
-const file = readMIDIFile(path)
-const notes = getnotes(file, 1)
-const pitch = mod.(pitches(notes), 12)
-const intervals = pitch[2:end] .- pitch[1:end-1]
-@time detect_motifs(intervals, 7, 1)
-@profiler detect_motifs(intervals, 7, 1)
-# m = detect_motifs(intervals, 7, 1)
+path = "C:\\Users\\cnelias\\Desktop\\PHD\\Pattern recognition\\data\\entire_notes\\MichaelBrecker_Confirmation_FINAL"
+notes = readdlm(path)
+pitch = mod.(notes, 12)
+intervals = pitch[2:end] .- pitch[1:end-1]
+m = detect_motifs(intervals, 7, 1)
 # print(m[2])
-# plot_motif(m[1])
+plot_motif(m[1])
 
 # f, se = spectral_envelope(intervals)
 # display(plot(f, se))

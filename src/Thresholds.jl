@@ -27,6 +27,23 @@ function symbol_probabilities(ts)
 end
 
 """
+    match_probability(ts, w, d)
+
+Estimates and returns the expectation value of motif-pair of length 'w'
+matching up to 'd' errors in the provided time-series 'ts'.
+"""
+function expected_matches(ts, w, d)
+    p = symbol_probabilities(ts)
+    p_symbol_match = p_motif_match(p, 2)
+    p_symbol_mismatch = 1 - p_symbol_match
+    match_proba = 0
+    for i in 0:d
+        match_proba += binomial(w, i)*p_symbol_match^(w-i)*p_symbol_mismatch^i
+    end
+    return big_binomial(length(ts), 2)*match_proba
+end
+
+"""
     masked_match(w, d, t)
 
 Returns the probability of two random masked generated motifs of length 't'
@@ -64,7 +81,7 @@ function least_occurence_threshold(ts, w, d; confidence = 0.5)
         p_symbol_mismatch = 1 - p_symbol_match
         match_proba = 0
         for i in 0:d
-            match_proba += binomial(w, i)*p_symbol_match^(w-i)*p_symbol_mismatch^i   #(1-i/w)^t binomial(w - t, d)/binomial(w, d)
+            match_proba += binomial(w, i)*p_symbol_match^(w-i)*p_symbol_mismatch^i
         end
         push!(E, big_binomial(length(ts), r)*match_proba)
     end
@@ -75,6 +92,7 @@ function least_occurence_threshold(ts, w, d; confidence = 0.5)
     end
     return idxs[1]
 end
+
 
 
 """
