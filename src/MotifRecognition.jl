@@ -1,4 +1,4 @@
-module MotifRecogntion
+module MotifRecognition
 
 using Plots
 
