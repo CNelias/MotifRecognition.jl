@@ -1,4 +1,5 @@
-# module MotifRecogntion
+module MotifRecogntion
+
 using Plots
 
 
@@ -47,7 +48,7 @@ Input:
 returns :
     motifs : a list of motif instances containing all usefull informations about the found motifs (positions, frequency, shapes ...)
 """
-function detect_motifs(ts, w, d, t = w - d; iters = 1000, tolerance = 0.95)
+function detect_motifs(ts, w, d, t = w - d; iters = 800, tolerance = 0.7)
     CM = collision_matrix(ts, w, d, t; iters = iters)
     min_occurences = least_occurence_threshold(ts, w, d)
     # println("Expected similar matches by chance : $min_occurences")
@@ -117,39 +118,40 @@ plots all instances of 'motif' on top of each other to facilitate their comparis
 """
 function plot_motif(motif, ts)
     len = length(motif.shape)
-    a = plot(1:length(ts), ts, color = "grey")
-    for p in motif.positions
-        plot!(a, p:p+len-1, ts[p:p+len-1], lw = 3)
+    a = plot(1:length(ts), ts, color = "grey", xlabel = "Time", ylabel = "Value", label = "#1", title = "Input motif repetitions \n within data")
+    for (idx, p) in enumerate(motif.positions)
+        idx +=1
+        plot!(a, p:p+len-1, ts[p:p+len-1], lw = 3, label = "#$idx")
     end
     display(a)
 end
 
 function plot_motif(motif)
-    a = plot(motif.shape, lw = 3, yticks = minimum(motif.shape):maximum(motif.shape), label = "occurence #1")
+    a = plot(motif.shape, lw = 3, yticks = minimum(motif.shape):maximum(motif.shape), label = "#1", title = "Occurences of input motif")
     for (idx, m) in enumerate(motif.instances[1:end-1])
         idx += 1
-        plot!(a, m, lw = 3, label = "Occurence #$idx")
+        plot!(a, m, lw = 3, label = "#$idx")
     end
     display(a)
 end
 
-using MusicManipulations
-using SpectralEnvelope
-using DelimitedFiles
-
-path = "C:\\Users\\cnelias\\Desktop\\PHD\\Pattern recognition\\data\\entire_notes\\MichaelBrecker_Confirmation_FINAL"
-notes = readdlm(path)
-pitch = mod.(notes, 12)
-intervals = pitch[2:end] .- pitch[1:end-1]
-m = detect_motifs(intervals, 7, 1)
-# print(m[2])
-plot_motif(m[1])
-
+# using MusicManipulations
+# using SpectralEnvelope
+# using DelimitedFiles
+#
+# path = "C:\\Users\\cnelias\\Desktop\\PHD\\Pattern recognition\\data\\entire_notes\\confirmation"
+# notes = readdlm(path)
+# pitch = mod.(notes, 12)
+# intervals = pitch[2:end] .- pitch[1:end-1]
+# m = detect_motifs(intervals, 7, 1; iters = 700, tolerance = 0.7)
+# print(m[1])
+# plot_motif(m[1])
+#
 # f, se = spectral_envelope(intervals)
 # display(plot(f, se))
-# get_mappings(intervals, 0.05)
+# get_mappings(intervals, 0.16)
 
-# m = find_motifs(intervals, m[1].shape[1:end-1], 1)
-# plot_motif(m)
+ export detect_motifs, find_motifs, plot_motif, expected_matches, least_occurence_threshold
 
-# end
+
+end
