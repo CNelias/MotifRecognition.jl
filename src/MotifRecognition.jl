@@ -118,9 +118,8 @@ plots all instances of 'motif' on top of each other to facilitate their comparis
 """
 function plot_motif(motif, ts)
     len = length(motif.shape)
-    a = plot(1:length(ts), ts, color = "grey", xlabel = "Time", ylabel = "Value", label = "#1", title = "Input motif repetitions \n within data")
+    a = plot(1:length(ts), ts, color = "grey", xlabel = "Time", ylabel = "Value", label = "", title = "Input motif repetitions \n within data")
     for (idx, p) in enumerate(motif.positions)
-        idx +=1
         plot!(a, p:p+len-1, ts[p:p+len-1], lw = 3, label = "#$idx")
     end
     display(a)
