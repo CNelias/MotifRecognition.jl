@@ -110,19 +110,27 @@ function find_motifs(ts, shape, d)
 end
 
 """
-    plot_motif(motif, ts)
+    plot_motif(motif, ts; subplots = false)
 
 Plots all instances of the given motif. If the corresponding time series 'ts'
 is provided, plots them on top of it, preserving the time-orderding. Otherwise,
 plots all instances of 'motif' on top of each other to facilitate their comparison.
+if subplots is given false, will only plot the motifs on top of the time-series.
 """
-function plot_motif(motif, ts)
+function plot_motif(motif, ts; subplots = true)
     len = length(motif.shape)
-    a = plot(1:length(ts), ts, color = "grey", xlabel = "Time", ylabel = "Value", label = "", title = "Input motif repetitions \n within data")
+    p2 = plot(1:length(ts), ts, color = "grey", xlabel = "Time", ylabel = "Value", label = "", title = "motif positions")
     for (idx, p) in enumerate(motif.positions)
-        plot!(a, p:p+len-1, ts[p:p+len-1], lw = 3, label = "#$idx")
+        plot!(p2, p:p+len-1, ts[p:p+len-1], lw = 3, label = "")
+    end
+    if subplots
+        p1 = plot_motif(motif)
+        a = plot(p1, p2, layout = (2,1))
+    else
+        a = p2
     end
     display(a)
+    return a
 end
 
 function plot_motif(motif)
@@ -132,25 +140,27 @@ function plot_motif(motif)
         plot!(a, m, lw = 3, label = "#$idx")
     end
     display(a)
+    return a
 end
 
-# using MusicManipulations
-# using SpectralEnvelope
-# using DelimitedFiles
-#
-# path = "C:\\Users\\cnelias\\Desktop\\PHD\\Pattern recognition\\data\\entire_notes\\confirmation"
-# notes = readdlm(path)
-# pitch = mod.(notes, 12)
-# intervals = pitch[2:end] .- pitch[1:end-1]
-# m = detect_motifs(intervals, 7, 1; iters = 700, tolerance = 0.7)
-# print(m[1])
-# plot_motif(m[1])
-#
-# f, se = spectral_envelope(intervals)
-# display(plot(f, se))
-# get_mappings(intervals, 0.16)
+"""
+    mapping(ts)
+returns an integer mapping of input time-series 'ts'.
+"""
+function mapping(ts)
+    categories = unique(ts)
+    arr = copy(ts)
+    for (idx, elt) in arr
+        for (pos, c) in categories
+            if elt == c
+                arr[idx] = pos
+            end
+        end
+    end
+    return arr
+end
 
- export detect_motifs, find_motifs, plot_motif, expected_matches, least_occurence_threshold
+ export detect_motifs, mapping, find_motifs, plot_motif, expected_matches, least_occurence_threshold
 
 
 end
