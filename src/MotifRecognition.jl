@@ -9,7 +9,6 @@ include("Thresholds.jl")
 
 """
     sort_decreasing(arr)
-
 Returns the indices needed to sort input array in decreasing order.
 """
 function sort_decreasing(arr)
@@ -35,16 +34,13 @@ end
 
 """
     detect_motifs(ts, w, d, t = w - d; iters = 1000, tolerance = 0.95)
-
 Detects all motifs of length 'w' occuring more often than chance, being identical up to 'd' differences.
 Input:
-
     w : length of motifs to look for
     d : allowed errors (differences) between motifs
     t : size of the masks to use for random projection in the detection
     iters : the numbers of iterations for the random projection process (defaults to 1000)
     tolerance : threshold of motif identification.
-
 returns :
     motifs : a list of motif instances containing all usefull informations about the found motifs (positions, frequency, shapes ...)
 """
@@ -53,7 +49,6 @@ function detect_motifs(ts, w, d, t = w - d; iters = 800, tolerance = 0.7)
     min_occurences = least_occurence_threshold(ts, w, d)
     # println("Expected similar matches by chance : $min_occurences")
     expected_matches = iters * masked_match(w, d, t) * tolerance
-    # print("expected matches =", expected_matches)
     occurences = sum(CM .> expected_matches, dims = 1) .+ 1
     idx = sort_decreasing(occurences[1,:]) #the indices needed to sort the final dict and list
     sorted_indices = [idx[i] for i in 1:length(idx)-1 if abs(idx[i+1] - idx[i]) > w] # removing trivial matches
@@ -82,17 +77,13 @@ end
 
 """
     find_motifs(ts, w, d)
-
 Given a motif of shape 'shape' (array{any,1}), look for all the repetitions of it which differ only up to 'd' differences.
 Input:
-
     ts : time-series in which to look for motifs
     shape : shape (aray{any,1}) of the motif to look for.
     d : allowed errors (differences) between motifs
-
 returns :
     motif : an instance of 'pattern' containing the found repetition of the input 'shape'.
-
 """
 function find_motifs(ts, shape, d)
     w = length(shape)
@@ -112,7 +103,6 @@ end
 
 """
     plot_motif(motif, ts; subplots = false)
-
 Plots all instances of the given motif. If the corresponding time series 'ts'
 is provided, plots them on top of it, preserving the time-orderding. Otherwise,
 plots all instances of 'motif' on top of each other to facilitate their comparison.
@@ -161,7 +151,7 @@ function mapping(ts)
     return arr
 end
 
- export detect_motifs, mapping, find_motifs, plot_motif, expected_matches, least_occurence_threshold, masked_match
+ export detect_motifs, mapping, find_motifs, plot_motif, expected_matches, least_occurence_threshold
 
 
 end
