@@ -15,8 +15,3 @@ Statsbase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 julia = "^1.0"
-DataStructures = "^0.18.8"
-Distributions = "^0.24.10"
-Combinatorics = "^1.0.2"
-Plots = "^0.12.1"
-StatsBase = "^0.24.0"
