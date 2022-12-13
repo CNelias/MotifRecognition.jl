@@ -10,7 +10,7 @@ The algorithm although very precise is not exact. Therefore, when you are done d
 
 If you do not want to read everything, have a look at the **examples** provided **at the end of this readme**.
 
- The main functions return instances of a class called **pattern**:
+The main functions return instances of a class called **pattern**:
 - - -
 **pattern — Class**
 - - -
@@ -121,3 +121,18 @@ Now, we visualize the repetitions of the motif in the time-series:
 plot_motif(motif, ts)
 ```
 <img src=https://user-images.githubusercontent.com/34754896/104313663-a1411c00-54d8-11eb-9854-70bd5ed9ba2f.PNG width = "600">
+
+
+### Citing
+If you used this module in a scientific publication, please consider citing the package it came from:
+```Bibtex
+@article{nelias2021categoricaltimeseries,
+  title={CategoricalTimeSeries. jl: A toolbox for categorical time-series analysis},
+  author={Nelias, Corentin},
+  journal={Journal of Open Source Software},
+  volume={6},
+  number={67},
+  pages={3733},
+  year={2021}
+}
+```
