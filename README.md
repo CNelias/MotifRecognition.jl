@@ -4,7 +4,7 @@
 |:---------------------:|
 |[![Build status](https://ci.appveyor.com/api/projects/status/lafds8w3gv04t39v?svg=true)](https://ci.appveyor.com/project/johncwok/motifrecognition-jl)
 
-This package proposes a detection algorithm based on JEREMY BUHLER and MARTIN TOMPA's paper "*Finding Motifs Using Random Projections*" which is well adapted for categorical time-series.
+This module proposes a detection algorithm based on JEREMY BUHLER and MARTIN TOMPA's paper "*Finding Motifs Using Random Projections*" which is well adapted for categorical time-series.  It is now part of the package [CategoricalTimeSeries.jl](https://github.com/johncwok/CategoricalTimeSeries.jl)
 The algorithm although very precise is not exact. Therefore, when you are done detecting potential motifs with the `detect_motifs` function, you can refine your results with `find_motifs` for an exact search. 
 <br/>
 
