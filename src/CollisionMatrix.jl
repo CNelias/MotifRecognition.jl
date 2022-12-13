@@ -27,6 +27,7 @@ Done with a sliding window.
 The different timeseries in 'ts' do not need to be of the same length
 """
 function S_matrix(ts::Union{Array{Array{Int32, 1}, 1}, Array{Array{Int64, 1}, 1},Array{Array{Float32, 1}, 1}, Array{Array{Float64, 1}, 1}, Array{Array{String, 1}, 1}}, window)
+    @warn "The identification of the position of the detected motifs (via the functon 'find_motifs') only works for an input of a single timeseries (vectorial input)."
     totalLength = 0
     for s in ts
         totalLength += length(s) - window
@@ -50,6 +51,7 @@ Done with a sliding window.
 'ts' is a matrix of different timeseries, which dimensions are the the different vectors representing the timeseries and the time.
 """
 function S_matrix(ts::Union{Array{Int32, 2}, Array{Int64, 2}, Array{Float32, 2}, Array{Float64, 2}, Array{String, 2}}, window)
+    @warn "The identification of the position of the detected motifs (via the functon 'find_motifs') only works for an input of a single timeseries (vectorial input)."
     totalLength = size(ts)[1]*(size(ts)[2]-window)
     S = Array{typeof(ts[1, 1]), 2}(undef, totalLength, window)
     currentLength = 0
