@@ -2,8 +2,6 @@ using Combinatorics
 using DataStructures
 using Random
 
-include("Thresholds.jl")
-
 """
     S_matrix(ts, window)
 

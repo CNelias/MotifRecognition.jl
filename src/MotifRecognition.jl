@@ -1,6 +1,6 @@
 module MotifRecognition
 
-using Plots
+using RecipesBase
 
 
 include("CollisionMatrix.jl")
@@ -26,7 +26,7 @@ end
     A class whose instances contain all usefull informations about a given motif
 found in a categorical time-series.
 """
-struct pattern
+struct Pattern
     shape
     instances
     positions
@@ -71,7 +71,7 @@ function detect_motifs(ts, w, d, t = w - d; iters = 800, tolerance = 0.7)
             push!(tmp_positions, j); push!(positions, tmp_positions)
         end
     end
-    motifs = [pattern(list[i][end], list[i], positions[i]) for i in 1:length(list)]
+    motifs = [Pattern(list[i][end], list[i], positions[i]) for i in eachindex(list)]
     return motifs
 end
 
@@ -98,7 +98,7 @@ function find_motifs(ts, shape, d)
             end
         end
     end
-    return pattern(shape, found_motifs, positions)
+    return Pattern(shape, found_motifs, positions)
 end
 
 """
@@ -108,30 +108,44 @@ is provided, plots them on top of it, preserving the time-orderding. Otherwise,
 plots all instances of 'motif' on top of each other to facilitate their comparison.
 if subplots is given false, will only plot the motifs on top of the time-series.
 """
-function plot_motif(motif, ts; subplots = true)
+@recipe function plot_motif(motif::Pattern, ts; split = false)
     len = length(motif.shape)
-    p2 = plot(1:length(ts), ts, color = "grey", xlabel = "Time", ylabel = "Value", label = "", title = "motif positions")
-    for (idx, p) in enumerate(motif.positions)
-        plot!(p2, p:p+len-1, ts[p:p+len-1], lw = 3, label = "")
+    split && (layout := (2,1))
+    title --> "Motif positions"
+    xguide --> "Time"
+    yguide --> "Value"
+    @series begin
+        split && (subplot := 2)
+        seriescolor --> "gray"
+        label --> ""
+        ts
     end
-    if subplots
-        p1 = plot_motif(motif)
-        a = plot(p1, p2, layout = (2,1))
-    else
-        a = p2
+    for p in motif.positions
+        @series begin
+            split && (subplot := 2)
+            linewidth --> 3
+            label --> ""
+            p:p+len-1, ts[p:p+len-1]
+        end
     end
-    display(a)
-    return a
+    split && (subplot := 1)
+    motif
 end
 
-function plot_motif(motif)
-    a = plot(motif.shape, lw = 3, yticks = minimum(motif.shape):maximum(motif.shape), label = "#1", title = "Occurences of input motif")
-    for (idx, m) in enumerate(motif.instances[1:end-1])
-        idx += 1
-        plot!(a, m, lw = 3, label = "#$idx")
+@recipe function plot_motif(motif::Pattern)
+    linewidth --> 3
+    yticks --> minimum(motif.shape):maximum(motif.shape)
+    title --> "Occurences of input motif"
+    @series begin
+        label --> "#1"
+        motif.shape
     end
-    display(a)
-    return a
+    for (idx, m) in enumerate(motif.instances[1:end-1])
+        @series begin
+            label --> "#$(idx+1)"
+            m
+        end
+    end
 end
 
 """
