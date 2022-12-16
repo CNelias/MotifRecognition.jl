@@ -5,7 +5,7 @@
 |[![Build status](https://ci.appveyor.com/api/projects/status/lafds8w3gv04t39v?svg=true)](https://ci.appveyor.com/project/johncwok/motifrecognition-jl)
 
 This module proposes a detection algorithm based on JEREMY BUHLER and MARTIN TOMPA's paper "*Finding Motifs Using Random Projections*" which is well adapted for categorical time-series.  It is now part of the package [CategoricalTimeSeries.jl](https://github.com/johncwok/CategoricalTimeSeries.jl)<br/>
-The algorithm although very precise is not exact. Therefore, when you are done detecting potential motifs with the `detect_motifs` function, you can refine your results with `find_motifs` for an exact search. 
+The algorithm although very precise is not exact. Therefore, when you are done detecting potential motifs with the `detect_motifs` function, you can refine your results with `find_motifs` for an exact search.
 <br/>
 
 For a quick overview, have a look at the **examples** provided **at the end of this readme**.
@@ -90,14 +90,16 @@ Plots all repetitions of an input `pattern` instance on top of the input time-se
 From Michael Brecker's improvisation over the piece ["confirmation"](https://github.com/johncwok/MotifRecognition.jl/tree/main/test), we extract a time-series of pitch intervals (difference from one note to the next).
 A spectral envelope analysis reveals a peak at period 6~7, so we look for motifs of length 7 and allow for 1 error between them.
 After detection, we visualize the most frequent motif:
-```
+```julia
+using MotifRecognition
 using DelimitedFiles
+using Plots
 
-data = readdlm("..\\test\\confirmation")
+data = readdlm(joinpath(pkgdir(MotifRecognition), "test", "confirmation"))
 pitch = mod.(data, 12) #Removing octave position: not needed
 intervals = pitch[2:end] .- pitch[1:end-1] #getting interval time-series.
 m = detect_motifs(intervals, 7, 1; iters = 700, tolerance = 0.7)
-plot_motif(m[1]) #plotting most frequent motif
+plot(m[1]) #plotting most frequent motif
 ```
 
 <img src=https://user-images.githubusercontent.com/34754896/104308882-9c2c9e80-54d1-11eb-8882-cc31b7b2af8b.PNG width = "500">
@@ -107,18 +109,18 @@ We notice that the motif `[-1, -2, 10, -10, 2, 3, 5]` seems to be the underlying
 <img src=https://user-images.githubusercontent.com/34754896/104315350-1ca3cd00-54db-11eb-864d-3a1da9d5efeb.PNG width = "500">
 
 We do an exact search with 1 error allowed to check if our previous detection missed any repetitions, and plot the found motif on top of each other:
-```
+```julia
 consensus_shape = [-1, -2, 10, -10, 2, 3, 5]
-motif = find_motifs(data, consensus_shape, 1)
-plot_motif(motif)
+motif = find_motifs(intervals, consensus_shape, 1)
+plot(motif)
 ```
 <img src=https://user-images.githubusercontent.com/34754896/104308882-9c2c9e80-54d1-11eb-8882-cc31b7b2af8b.PNG width = "500">
 
 Here, we obtain the same plot as before but this is not necessarily always the case. Knowing the consensus motif usually allows to find its repetitions more efficiently.
 
 Now, we visualize the repetitions of the motif in the time-series:
-```
-plot_motif(motif, ts)
+```julia
+plot(motif, intervals)
 ```
 <img src=https://user-images.githubusercontent.com/34754896/104313663-a1411c00-54d8-11eb-9854-70bd5ed9ba2f.PNG width = "600">
 
